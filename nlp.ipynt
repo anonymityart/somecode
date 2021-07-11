@@ -1,0 +1,289 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "stuffed-organ",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from transformers import  BertModel\n",
+    "\n",
+    "from transformers import BertTokenizer, BertForPreTraining"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "featured-destination",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import torch, torchvision, math\n",
+    "\n",
+    "from torch import  nn"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fitted-volume",
+   "metadata": {
+    "scrolled": false
+   },
+   "outputs": [],
+   "source": [
+    "tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')\n",
+    "model = BertForPreTraining.from_pretrained('bert-base-uncased')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "natural-portrait",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rawmodel = BertModel.from_pretrained('bert-base-uncased')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "functioning-exhibition",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tokenizer."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "important-street",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "inputs = tokenizer(\"Hello, my dog is cute\", return_tensors=\"pt\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "controversial-worse",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "outputs = model(**inputs, output_attentions=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "pharmaceutical-study",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rawoutputs = rawmodel(**inputs)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "documentary-testament",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rawmodel.config"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "upper-acceptance",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    " torch.tensor([1,0]).unsqueeze(0)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "professional-terrorist",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rawoutputs.last_hidden_state.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "current-mercy",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "a = outputs.attentions[0].reshape(-1, 8, 8)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "lovely-diploma",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "for idx, atte in enumerate(a):\n",
+    "    print(idx, atte.shape)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "broad-franklin",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "outputs.keys(), type(outputs)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "suspected-module",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "outputs.prediction_logits.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "residential-break",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "input_features = 200\n",
+    "nhid = 200"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "hidden-mounting",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "resnet = torchvision.models.resnet18(pretrained=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "appreciated-documentary",
+   "metadata": {
+    "scrolled": false
+   },
+   "outputs": [],
+   "source": [
+    "for para in resnet.parameters():\n",
+    "    para.requires_grad = False\n",
+    "\n",
+    "raw_features = resnet.fc.in_features\n",
+    "resnet.fc = nn.Linear(raw_features, input_features)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "suitable-university",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "class PositionalEncoding(nn.Module):\n",
+    "\n",
+    "    def __init__(self, nhid, dropout=0.1, max_len=5000):\n",
+    "        self.nhid = nhid\n",
+    "        d_model, _ = get_pe_size()\n",
+    "        super(PositionalEncoding, self).__init__()\n",
+    "        self.dropout = nn.Dropout(p=dropout)\n",
+    "\n",
+    "        pe = torch.zeros(max_len, d_model)\n",
+    "        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)\n",
+    "        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))\n",
+    "        pe[:, 0::2] = torch.sin(position * div_term)\n",
+    "        pe[:, 1::2] = torch.cos(position * div_term)\n",
+    "        pe = pe.unsqueeze(0).transpose(0, 1)\n",
+    "        self.register_buffer('pe', pe)\n",
+    "\n",
+    "    def get_pe_size(self):\n",
+    "        self.pos_size = 5\n",
+    "        pe_size = self.nhid // self.pos_size\n",
+    "        extra = self.nhid - pe_size*self.pos_size\n",
+    "        return pe_size, extra\n",
+    "        \n",
+    "    def forward(self, pos, x):\n",
+    "        # x : (batch, seq_len, nhid), pos: (batch, seq_len, pos_len)\n",
+    "        pos_shape = pos.shape\n",
+    "        pos_len = pos.shape[-1]\n",
+    "        assert pos_len == self.pos_size\n",
+    "        pos = pos.view(-1, pos_len)\n",
+    "        _, pad_size = self.get_pe_size()\n",
+    "        def get_pe(pos):\n",
+    "            pos_from_x, pos_from_y, pos_to_x, pos_to_y, timestamp = pos\n",
+    "            cur_pe = torch.cat([self.pe[xy, :] for xy in (pos_from_x, pos_to_x, pos_from_y, pos_to_y, timestamp)])\n",
+    "\n",
+    "            if pad_size:\n",
+    "                cur_pe = torch.cat((cur_pe, torch.zeros(pad_size)))\n",
+    "            return cur_pe\n",
+    "        pos = torch.tensor([get_pe(p) for p in pos])\n",
+    "        pos.view(*pos_shape[:2], -1)\n",
+    "        assert pos.shape[-1] == self.nhid\n",
+    "        \n",
+    "        x = x + cur_pe\n",
+    "        return self.dropout(x)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "buried-comedy",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "class TransformerModel(nn.Module):\n",
+    "\n",
+    "    def __init__(self, ntoken, ninp, nhead, nhid, nlayers, dropout=0.5):\n",
+    "        super(TransformerModel, self).__init__()\n",
+    "        from torch.nn import TransformerEncoder, TransformerEncoderLayer\n",
+    "        self.model_type = 'Transformer'\n",
+    "        self.viewport_encoding = nn.Parameter(torch.randn(3))"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.13"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
